@@ -5,6 +5,7 @@ const ITEM = [
   { href: '/data-induk/material', label: 'Material' },
   { href: '/data-induk/satuan', label: 'Satuan' },
   { href: '/data-induk/kategori-material', label: 'Kategori Material' },
+  { href: '/data-induk/personel', label: 'Personel' },
 ];
 
 export default function DataIndukPage() {

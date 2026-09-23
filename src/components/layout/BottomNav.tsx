@@ -12,6 +12,7 @@ const MENU = [
 ];
 
 const LAINNYA = [
+  { href: '/liquid-oxygen', label: 'Liquid Oxygen' },
   { href: '/biaya', label: 'Biaya' },
   { href: '/aset', label: 'Aset' },
   { href: '/hse', label: 'HSE' },
