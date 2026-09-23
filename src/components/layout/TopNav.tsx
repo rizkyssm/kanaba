@@ -1,62 +1,68 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { keluarAction } from '@/features/auth/actions';
+import ProfileMenu from './ProfileMenu';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { Bell } from 'lucide-react';
 import { useState } from 'react';
 
 const MENU = [
-  { href: '/beranda', label: 'Beranda' },
-  { href: '/kegiatan', label: 'Kegiatan' },
-  { href: '/alur', label: 'Alur' },
-  { href: '/persediaan', label: 'Persediaan' },
-  { href: '/biaya', label: 'Biaya' },
-  { href: '/aset', label: 'Aset' },
-  { href: '/hse', label: 'HSE' },
-  { href: '/analitik', label: 'Analitik' },
-  { href: '/laporan', label: 'Laporan' },
-  { href: '/data-induk', label: 'Data Induk' },
+  { href: '/beranda',      label: 'Beranda' },
+  { href: '/kegiatan',     label: 'Kegiatan' },
+  { href: '/alur',         label: 'Alur' },
+  { href: '/persediaan',   label: 'Persediaan' },
+  { href: '/liquid-oxygen',label: 'LOX' },
+  { href: '/hse',          label: 'HSE' },
+  { href: '/aset',         label: 'Aset' },
+  { href: '/biaya',        label: 'Biaya' },
+  { href: '/analitik',     label: 'Analitik' },
+  { href: '/laporan',      label: 'Laporan' },
+  { href: '/data-induk',   label: 'Data Induk' },
 ];
 
-export default function TopNav({ ctx }: { ctx: { namaLengkap: string; organisasiNama: string } }) {
+export default function TopNav({
+  ctx,
+}: { ctx: { namaLengkap: string; email: string; organisasiNama: string } }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+
   return (
-    <header className="hidden md:block border-b border-[color:var(--border)] sticky top-0 bg-[color:var(--bg)]/95 backdrop-blur z-30">
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-6">
-        <Link href="/beranda" className="font-semibold tracking-tight">KANABA</Link>
-        <nav className="flex items-center gap-1 flex-1 overflow-x-auto">
+    <header className="hidden md:block sticky top-0 z-30 border-b bg-[color:var(--bg)]/85 backdrop-blur-xl">
+      <div className="max-w-[1400px] mx-auto px-6 h-14 flex items-center gap-6">
+        <Link href="/beranda" className="font-semibold text-[15px] tracking-tight shrink-0">
+          KANABA
+        </Link>
+
+        <nav className="flex items-center gap-0.5 flex-1 overflow-x-auto scrollbar-none">
           {MENU.map((m) => {
-            const aktif = pathname.startsWith(m.href);
+            const aktif = pathname === m.href || pathname.startsWith(m.href + '/');
             return (
               <Link
                 key={m.href}
                 href={m.href}
-                className={`px-3 py-1.5 rounded text-sm whitespace-nowrap ${
-                  aktif ? 'bg-[color:var(--bg-2)] font-medium' : 'text-[color:var(--text-2)] hover:bg-[color:var(--bg-2)]'
-                }`}
+                className={
+                  'px-3 h-8 rounded-full text-[13px] font-medium whitespace-nowrap flex items-center ' +
+                  (aktif
+                    ? 'bg-[color:var(--bg-subtle)] text-[color:var(--text)]'
+                    : 'text-[color:var(--text-2)] hover:bg-[color:var(--bg-hover)] hover:text-[color:var(--text)]')
+                }
               >
                 {m.label}
               </Link>
             );
           })}
         </nav>
-        <div className="flex items-center gap-3 text-sm">
-          <input placeholder="Cari…" className="rounded border border-[color:var(--border)] px-3 py-1.5 bg-transparent w-48" />
-          <button
-            onClick={() => setOpen((o) => !o)}
-            className="rounded-full border border-[color:var(--border)] w-8 h-8 flex items-center justify-center text-xs"
-          >
-            {ctx.namaLengkap.charAt(0).toUpperCase() || 'U'}
+
+        <div className="flex items-center gap-2 shrink-0">
+          <SearchInput value={q} onChange={setQ} placeholder="Cari…" className="w-56" />
+          <button className="w-9 h-9 rounded-full hover:bg-[color:var(--bg-hover)] flex items-center justify-center focus-ring">
+            <Bell size={16} className="text-[color:var(--text-2)]" />
           </button>
-          {open && (
-            <div className="absolute right-4 top-14 rounded border border-[color:var(--border)] bg-[color:var(--bg)] p-3 w-56 shadow-sm">
-              <div className="text-sm font-medium">{ctx.namaLengkap || 'Pengguna'}</div>
-              <div className="text-xs text-[color:var(--text-2)] mb-2">{ctx.organisasiNama}</div>
-              <form action={keluarAction}>
-                <button className="text-sm text-red hover:underline">Keluar</button>
-              </form>
-            </div>
-          )}
+          <ProfileMenu
+            nama={ctx.namaLengkap}
+            email={ctx.email}
+            organisasiNama={ctx.organisasiNama}
+          />
         </div>
       </div>
     </header>

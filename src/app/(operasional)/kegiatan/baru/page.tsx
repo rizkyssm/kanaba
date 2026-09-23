@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { getKonteks, punya } from '@/lib/auth/permissions';
 import { redirect } from 'next/navigation';
 import FormKegiatan from '@/features/kegiatan/FormKegiatan';
-import Link from 'next/link';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
 
 export default async function KegiatanBaruPage() {
   const ctx = await getKonteks();
@@ -11,18 +12,13 @@ export default async function KegiatanBaruPage() {
 
   const supabase = await createClient();
   const { data: sites } = await supabase
-    .from('site')
-    .select('id, nama, kode')
-    .eq('organisasi_id', ctx.organisasiId)
-    .eq('aktif', true)
-    .order('nama');
+    .from('site').select('id, nama, kode')
+    .eq('organisasi_id', ctx.organisasiId).eq('aktif', true).order('nama');
 
   return (
-    <div className="space-y-4">
-      <div>
-        <Link href="/kegiatan" className="text-sm text-[color:var(--text-2)] hover:underline">← Kembali</Link>
-        <h1 className="text-xl font-semibold mt-1">Kegiatan Baru</h1>
-      </div>
+    <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Kegiatan', href: '/kegiatan' }, { label: 'Baru' }]} />
+      <PageHeader title="Kegiatan Baru" subtitle="Isi data dasar kegiatan. Material, LOX, dan personel dapat dilengkapi setelahnya." />
       <FormKegiatan sites={(sites ?? []) as any} />
     </div>
   );

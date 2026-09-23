@@ -1,57 +1,121 @@
 @import "tailwindcss";
 
-/* Dark mode berbasis class .dark */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Token warna Tailwind v4 (untuk utility seperti text-blue, bg-red, dll) */
 @theme {
+  /* Aksen utama — mengikuti Apple System Colors */
   --color-blue: #0a84ff;
   --color-green: #34c759;
   --color-yellow: #ffcc00;
   --color-orange: #ff9500;
   --color-red: #ff3b30;
+  --color-purple: #5e5ce6;
+  --color-pink: #ff2d55;
+  --color-teal: #5ac8fa;
+  --color-indigo: #5856d6;
 
-  --radius-DEFAULT: 10px;
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadow minimalis */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
 
-/* Token runtime untuk light/dark (dipanggil via var(--bg) dll) */
 :root {
-  --bg: #ffffff;
-  --bg-2: #f2f2f4;
-  --border: #e5e5ea;
-  --text: #1d1d1f;
-  --text-2: #6e6e73;
-  --text-muted: #8e8e93;
+  /* Light */
+  --bg:        #ffffff;
+  --bg-elev:   #ffffff;
+  --bg-subtle: #f5f5f7;
+  --bg-hover:  #f0f0f3;
+  --bg-inset:  #fafafa;
+
+  --border:      #e5e5ea;
+  --border-soft: #eaeaee;
+
+  --text:       #1d1d1f;
+  --text-2:     #6e6e73;
+  --text-3:     #8e8e93;
+
+  --accent:     #0a84ff;
+  --accent-fg:  #ffffff;
+
+  --green-soft:  rgba(52,199,89,0.12);
+  --green-fg:    #1a7f37;
+  --red-soft:    rgba(255,59,48,0.12);
+  --red-fg:      #c8261f;
+  --orange-soft: rgba(255,149,0,0.14);
+  --orange-fg:   #a86000;
+  --yellow-soft: rgba(255,204,0,0.18);
+  --yellow-fg:   #8a6a00;
+  --blue-soft:   rgba(10,132,255,0.10);
+  --blue-fg:     #0060df;
+  --purple-soft: rgba(94,92,230,0.12);
+  --purple-fg:   #4640cc;
+  --gray-soft:   rgba(142,142,147,0.12);
+  --gray-fg:     #6e6e73;
 }
 
 .dark {
-  --bg: #1c1c1e;
-  --bg-2: #2c2c2e;
-  --text: #f5f5f7;
-  --text-2: #8e8e93;
+  --bg:        #1c1c1e;
+  --bg-elev:   #2c2c2e;
+  --bg-subtle: #2c2c2e;
+  --bg-hover:  #3a3a3c;
+  --bg-inset:  #242426;
+
+  --border:      #38383a;
+  --border-soft: #2f2f31;
+
+  --text:    #f5f5f7;
+  --text-2:  #a1a1a6;
+  --text-3:  #8e8e93;
+
+  --green-soft:  rgba(48,209,88,0.18);
+  --green-fg:    #4cd964;
+  --red-soft:    rgba(255,69,58,0.18);
+  --red-fg:      #ff6961;
+  --orange-soft: rgba(255,159,10,0.20);
+  --orange-fg:   #ffb340;
+  --yellow-soft: rgba(255,214,10,0.20);
+  --yellow-fg:   #ffd60a;
+  --blue-soft:   rgba(10,132,255,0.20);
+  --blue-fg:     #64b5ff;
+  --purple-soft: rgba(94,92,230,0.22);
+  --purple-fg:   #a5a3ff;
+  --gray-soft:   rgba(142,142,147,0.20);
+  --gray-fg:     #a1a1a6;
 }
 
-html,
-body {
+html, body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "tnum" 1, "cv11" 1;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
-/* Komponen tabel — tulis CSS biasa, jangan pakai @apply untuk var() */
-@layer components {
-  .tabel {
-    @apply w-full text-sm border-separate border-spacing-0;
-  }
-  .tabel th {
-    @apply text-left font-medium px-3 py-2 border-b;
-    border-color: var(--border);
-    color: var(--text-2);
-  }
-  .tabel td {
-    @apply px-3 py-2 border-b;
-    border-color: var(--border);
-  }
+* { border-color: var(--border); }
+
+/* Selalu tampilkan tabular numbers pada angka penting */
+.tnum { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+
+/* Scrollbar halus */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); background-clip: content-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Fokus ring iOS-style */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(10,132,255,0.30);
 }
+
+/* Transisi default */
+button, a, input, select, textarea { transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease; }

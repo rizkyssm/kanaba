@@ -2,14 +2,13 @@
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { buatKegiatanAction } from './actions';
+import { Field, Input, Select, Textarea } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
 
 function Tombol() {
   const { pending } = useFormStatus();
-  return (
-    <button disabled={pending} className="rounded bg-blue text-white px-4 py-2 text-sm font-medium disabled:opacity-60">
-      {pending ? 'Menyimpan…' : 'Simpan Kegiatan'}
-    </button>
-  );
+  return <Button type="submit" variant="primary" disabled={pending}>{pending ? 'Menyimpan…' : 'Simpan Kegiatan'}</Button>;
 }
 
 export default function FormKegiatan({ sites }: { sites: { id: string; nama: string; kode: string }[] }) {
@@ -17,48 +16,58 @@ export default function FormKegiatan({ sites }: { sites: { id: string; nama: str
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <form action={action} className="space-y-4 max-w-2xl">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <label className="text-xs text-[color:var(--text-2)]">Nama Kegiatan</label>
-          <input name="nama" required className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-        </div>
-        <div>
-          <label className="text-xs text-[color:var(--text-2)]">Site</label>
-          <select name="site_id" required className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent">
-            <option value="">— Pilih Site —</option>
-            {sites.map((s) => (
-              <option key={s.id} value={s.id}>{s.kode} · {s.nama}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-xs text-[color:var(--text-2)]">Tanggal</label>
-          <input type="date" name="tanggal" defaultValue={today} required className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-        </div>
-        <div>
-          <label className="text-xs text-[color:var(--text-2)]">Lokasi</label>
-          <input name="lokasi" className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-        </div>
-        <div>
-          <label className="text-xs text-[color:var(--text-2)]">Target BCM</label>
-          <input type="number" step="0.01" name="target_bcm" defaultValue={0} className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-        </div>
-        <div>
-          <label className="text-xs text-[color:var(--text-2)]">Rencana KANABA (pcs)</label>
-          <input type="number" name="rencana_kanaba" defaultValue={0} className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-        </div>
-        <div>
-          <label className="text-xs text-[color:var(--text-2)]">Rencana LOX (kg)</label>
-          <input type="number" step="0.01" name="rencana_lox_kg" defaultValue={0} className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-        </div>
-      </div>
-      <div>
-        <label className="text-xs text-[color:var(--text-2)]">Catatan</label>
-        <textarea name="catatan" rows={3} className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-      </div>
+    <form action={action} className="space-y-5 max-w-3xl">
+      <Card>
+        <CardBody className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="Nama Kegiatan" required>
+              <Input name="nama" required />
+            </Field>
+            <Field label="Site" required>
+              <Select name="site_id" required defaultValue="">
+                <option value="" disabled>— Pilih Site —</option>
+                {sites.map((s) => <option key={s.id} value={s.id}>{s.kode} · {s.nama}</option>)}
+              </Select>
+            </Field>
+            <Field label="Tanggal" required>
+              <Input type="date" name="tanggal" defaultValue={today} required />
+            </Field>
+            <Field label="Lokasi">
+              <Input name="lokasi" />
+            </Field>
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody className="space-y-4">
+          <div className="text-[13px] font-medium text-[color:var(--text-2)]">Rencana</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Field label="Target BCM">
+              <Input type="number" step="0.01" name="target_bcm" defaultValue={0} />
+            </Field>
+            <Field label="KANABA (pcs)">
+              <Input type="number" name="rencana_kanaba" defaultValue={0} />
+            </Field>
+            <Field label="LOX (kg)">
+              <Input type="number" step="0.01" name="rencana_lox_kg" defaultValue={0} />
+            </Field>
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody>
+          <Field label="Catatan">
+            <Textarea name="catatan" rows={3} />
+          </Field>
+        </CardBody>
+      </Card>
+
       {state?.error && <p className="text-sm text-red">{state.error}</p>}
-      <Tombol />
+      <div className="flex items-center gap-2">
+        <Tombol />
+      </div>
     </form>
   );
 }

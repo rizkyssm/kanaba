@@ -1,17 +1,23 @@
 'use client';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { buatSiteAction } from './actions';
-import { useState } from 'react';
+import { Field, Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { TableWrap, THead, TH, TBody, TR, TD } from '@/components/ui/Table';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Badge } from '@/components/ui/Badge';
+import { MapPin, Plus } from 'lucide-react';
 
 type Site = { id: string; kode: string; nama: string; alamat: string | null; aktif: boolean };
 
 function Tombol() {
   const { pending } = useFormStatus();
   return (
-    <button disabled={pending} className="rounded bg-blue text-white px-3 py-2 text-sm font-medium disabled:opacity-60">
+    <Button type="submit" variant="primary" disabled={pending}>
       {pending ? 'Menyimpan…' : 'Tambah Site'}
-    </button>
+    </Button>
   );
 }
 
@@ -20,66 +26,76 @@ export default function SiteClient({ data, bisaKelola }: { data: Site[]; bisaKel
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-semibold">Site</h1>
-          <p className="text-sm text-[color:var(--text-2)]">Daftar lokasi operasional organisasi.</p>
+          <h1 className="text-[22px] font-semibold tracking-tight">Site</h1>
+          <p className="text-sm text-[color:var(--text-2)] mt-1">Daftar lokasi operasional organisasi.</p>
         </div>
         {bisaKelola && (
-          <button onClick={() => setShowForm((s) => !s)} className="rounded border border-[color:var(--border)] px-3 py-2 text-sm">
-            {showForm ? 'Tutup' : 'Site Baru'}
-          </button>
+          <Button variant={showForm ? 'secondary' : 'primary'} onClick={() => setShowForm((s) => !s)}>
+            {showForm ? 'Tutup' : <><Plus size={14} /> Site Baru</>}
+          </Button>
         )}
       </div>
 
       {showForm && bisaKelola && (
-        <form action={action} className="rounded border border-[color:var(--border)] p-4 grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-          <div>
-            <label className="text-xs text-[color:var(--text-2)]">Kode</label>
-            <input name="kode" required className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-          </div>
-          <div>
-            <label className="text-xs text-[color:var(--text-2)]">Nama</label>
-            <input name="nama" required className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-          </div>
-          <div className="md:col-span-2">
-            <label className="text-xs text-[color:var(--text-2)]">Alamat</label>
-            <input name="alamat" className="w-full rounded border border-[color:var(--border)] px-3 py-2 bg-transparent" />
-          </div>
-          <div className="md:col-span-3 flex items-center gap-3">
-            <Tombol />
-            {state?.error && <span className="text-sm text-red">{state.error}</span>}
-            {state?.sukses && <span className="text-sm text-green">Site tersimpan.</span>}
-          </div>
-        </form>
+        <Card>
+          <CardBody>
+            <form action={action} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <Field label="Kode" required>
+                <Input name="kode" required placeholder="SITE-01" />
+              </Field>
+              <Field label="Nama" required>
+                <Input name="nama" required placeholder="Gunung Batujajar" />
+              </Field>
+              <div className="md:col-span-2">
+                <Field label="Alamat">
+                  <Input name="alamat" />
+                </Field>
+              </div>
+              <div className="md:col-span-3 flex items-center gap-3">
+                <Tombol />
+                {state?.error && <span className="text-sm text-red">{state.error}</span>}
+                {state?.sukses && <span className="text-sm text-green">Site tersimpan.</span>}
+              </div>
+            </form>
+          </CardBody>
+        </Card>
       )}
 
-      <div className="overflow-x-auto rounded border border-[color:var(--border)]">
-        <table className="tabel">
-          <thead>
-            <tr>
-              <th>Kode</th>
-              <th>Nama</th>
-              <th>Alamat</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.length === 0 && (
-              <tr><td colSpan={4} className="text-center text-[color:var(--text-2)] py-6">Belum ada site.</td></tr>
-            )}
+      {data.length === 0 ? (
+        <Card>
+          <EmptyState
+            icon={<MapPin size={20} />}
+            title="Belum ada site"
+            description="Tambahkan lokasi operasional untuk memulai kegiatan."
+          />
+        </Card>
+      ) : (
+        <TableWrap className="bg-[color:var(--bg-elev)]">
+          <THead>
+            <TH>Kode</TH>
+            <TH>Nama</TH>
+            <TH>Alamat</TH>
+            <TH>Status</TH>
+          </THead>
+          <TBody>
             {data.map((s) => (
-              <tr key={s.id}>
-                <td className="font-mono text-xs">{s.kode}</td>
-                <td>{s.nama}</td>
-                <td className="text-[color:var(--text-2)]">{s.alamat ?? '—'}</td>
-                <td>{s.aktif ? 'Aktif' : 'Nonaktif'}</td>
-              </tr>
+              <TR key={s.id}>
+                <TD className="font-mono text-[12px]">{s.kode}</TD>
+                <TD className="font-medium">{s.nama}</TD>
+                <TD className="text-[color:var(--text-2)]">{s.alamat ?? '—'}</TD>
+                <TD>
+                  {s.aktif
+                    ? <Badge tone="green">Aktif</Badge>
+                    : <Badge tone="gray">Nonaktif</Badge>}
+                </TD>
+              </TR>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TBody>
+        </TableWrap>
+      )}
     </div>
   );
 }

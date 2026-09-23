@@ -1,24 +1,121 @@
-import Link from 'next/link';
+import { createClient } from '@/lib/supabase/server';
+import { getKonteks, punya } from '@/lib/auth/permissions';
+import FormPersonel from '@/features/personel/FormPersonel';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Section } from '@/components/ui/Section';
+import { Card, CardBody } from '@/components/ui/Card';
+import { KPICard } from '@/components/ui/KPICard';
+import { TableWrap, THead, TH, TBody, TR, TD } from '@/components/ui/Table';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Badge } from '@/components/ui/Badge';
+import { Breadcrumb } from '@/components/ui/Breadcrumb';
+import { Users } from 'lucide-react';
 
-const ITEM = [
-  { href: '/data-induk/site', label: 'Site' },
-  { href: '/data-induk/material', label: 'Material' },
-  { href: '/data-induk/satuan', label: 'Satuan' },
-  { href: '/data-induk/kategori-material', label: 'Kategori Material' },
-  { href: '/data-induk/personel', label: 'Personel' },
-];
+const TIPE_LABEL: Record<string, string> = {
+  karyawan: 'Karyawan',
+  tenaga_lepas: 'Tenaga Lepas',
+  vendor: 'Vendor',
+};
 
-export default function DataIndukPage() {
+const TIPE_TONE: Record<string, 'blue' | 'purple' | 'orange'> = {
+  karyawan: 'blue',
+  tenaga_lepas: 'orange',
+  vendor: 'purple',
+};
+
+export default async function PersonelPage() {
+  const ctx = await getKonteks();
+  if (!ctx) return null;
+
+  const bolehGaji = punya(ctx, 'gaji.lihat');
+  const bolehKelola = punya(ctx, 'data_induk.kelola');
+
+  const supabase = await createClient();
+  const { data: list } = await supabase
+    .from('personel')
+    .select(`id, nama, tipe, telepon, keahlian, aktif,
+      kompensasi:personel_kompensasi(tarif, jenis_tarif)`)
+    .eq('organisasi_id', ctx.organisasiId)
+    .order('nama');
+
+  const total = list?.length ?? 0;
+  const karyawan = (list ?? []).filter((p: any) => p.tipe === 'karyawan').length;
+  const lepas = (list ?? []).filter((p: any) => p.tipe === 'tenaga_lepas').length;
+  const vendor = (list ?? []).filter((p: any) => p.tipe === 'vendor').length;
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Data Induk</h1>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {ITEM.map((i) => (
-          <Link key={i.href} href={i.href} className="rounded border border-[color:var(--border)] p-4 hover:bg-[color:var(--bg-2)]">
-            {i.label}
-          </Link>
-        ))}
+    <div className="space-y-6">
+      <Breadcrumb items={[{ label: 'Data Induk', href: '/data-induk' }, { label: 'Personel' }]} />
+      <PageHeader
+        title="Personel"
+        subtitle="Karyawan, tenaga lepas, dan personel vendor."
+      />
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <KPICard label="Total Personel"  value={total} />
+        <KPICard label="Karyawan"        value={karyawan} tone="blue" />
+        <KPICard label="Tenaga Lepas"    value={lepas} tone="orange" />
+        <KPICard label="Vendor"          value={vendor} tone="purple" />
       </div>
+
+      {bolehKelola && (
+        <Section title="Tambah Personel" subtitle={bolehGaji ? 'Tarif hanya tampil dan tersimpan untuk pengguna dengan hak gaji.' : undefined}>
+          <Card>
+            <CardBody>
+              <FormPersonel bolehGaji={bolehGaji} />
+            </CardBody>
+          </Card>
+        </Section>
+      )}
+
+      <Section title="Daftar Personel" subtitle={`${list?.length ?? 0} orang`}>
+        {(!list || list.length === 0) ? (
+          <Card>
+            <EmptyState
+              icon={<Users size={20} />}
+              title="Belum ada personel"
+              description="Tambahkan karyawan, tenaga lepas, atau vendor untuk ditugaskan ke kegiatan."
+            />
+          </Card>
+        ) : (
+          <TableWrap className="bg-[color:var(--bg-elev)]">
+            <THead>
+              <TH>Nama</TH>
+              <TH>Tipe</TH>
+              <TH>Keahlian</TH>
+              <TH>Telepon</TH>
+              <TH>Status</TH>
+              {bolehGaji && <TH align="right">Tarif</TH>}
+            </THead>
+            <TBody>
+              {(list ?? []).map((r: any) => (
+                <TR key={r.id}>
+                  <TD className="font-medium">{r.nama}</TD>
+                  <TD>
+                    <Badge tone={TIPE_TONE[r.tipe] ?? 'gray'}>
+                      {TIPE_LABEL[r.tipe] ?? r.tipe}
+                    </Badge>
+                  </TD>
+                  <TD className="text-[color:var(--text-2)]">{r.keahlian ?? '—'}</TD>
+                  <TD className="text-[color:var(--text-2)]">{r.telepon ?? '—'}</TD>
+                  <TD>
+                    {r.aktif
+                      ? <Badge tone="green">Aktif</Badge>
+                      : <Badge tone="gray">Nonaktif</Badge>}
+                  </TD>
+                  {bolehGaji && (
+                    <TD align="right">
+                      {r.kompensasi?.tarif != null
+                        ? `Rp ${Number(r.kompensasi.tarif).toLocaleString('id-ID')} / ${r.kompensasi.jenis_tarif ?? ''}`
+                        : '—'}
+                    </TD>
+                  )}
+                </TR>
+              ))}
+            </TBody>
+          </TableWrap>
+        )}
+      </Section>
     </div>
   );
 }
