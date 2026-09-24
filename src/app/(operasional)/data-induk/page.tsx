@@ -13,6 +13,8 @@ import {
   Tag,
   Truck,
   FileWarning,
+  Wallet, 
+  Building2,
 } from 'lucide-react';
 
 export default async function DataIndukPage() {
@@ -32,6 +34,9 @@ export default async function DataIndukPage() {
     { count: kategoriCount },
     { count: asetCount },
     { count: alasanCount },
+    { count: kategoriBiayaCount },
+    { count: pusatBiayaCount },
+    { count: vendorCount },
   ] = await Promise.all([
     supabase.from('site')
       .select('*', { count: 'exact', head: true })
@@ -60,6 +65,15 @@ export default async function DataIndukPage() {
     supabase.from('alasan_penyesuaian')
       .select('*', { count: 'exact', head: true })
       .eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('kategori_biaya')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('pusat_biaya')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('vendor')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
   ]);
 
   const MODUL = [
@@ -72,6 +86,9 @@ export default async function DataIndukPage() {
     { href: '/data-induk/personel',          label: 'Personel',          count: personelCount ?? 0, icon: Users },
     { href: '/data-induk/alasan-penyesuaian',label: 'Alasan Penyesuaian',count: alasanCount ?? 0,   icon: FileWarning },
     { href: '/aset',                         label: 'Aset',              count: asetCount ?? 0,     icon: Truck },
+    { href: '/data-induk/kategori-biaya', label: 'Kategori Biaya', count: kategoriBiayaCount ?? 0, icon: Tag },
+    { href: '/data-induk/pusat-biaya',    label: 'Pusat Biaya',    count: pusatBiayaCount ?? 0,    icon: Wallet },
+    { href: '/data-induk/vendor',         label: 'Vendor',         count: vendorCount ?? 0,        icon: Building2 },
   ];
 
   return (

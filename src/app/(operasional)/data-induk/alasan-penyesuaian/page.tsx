@@ -5,18 +5,19 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { TableWrap, THead, TH, TBody, TR, TD } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
-import { Ruler, Plus } from 'lucide-react';
+import { FileWarning, Plus } from 'lucide-react';
 
-export default async function SatuanPage() {
+export default async function AlasanPenyesuaianPage() {
   const ctx = await getKonteks();
   if (!ctx) return null;
 
   const supabase = await createClient();
   const { data } = await supabase
-    .from('satuan')
-    .select('id, kode, nama')
+    .from('alasan_penyesuaian')
+    .select('id, kode, nama, aktif')
     .eq('organisasi_id', ctx.organisasiId)
     .order('kode');
 
@@ -24,13 +25,13 @@ export default async function SatuanPage() {
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Data Induk', href: '/data-induk' }, { label: 'Satuan' }]} />
+      <Breadcrumb items={[{ label: 'Data Induk', href: '/data-induk' }, { label: 'Alasan Penyesuaian' }]} />
       <PageHeader
-        title="Satuan"
-        subtitle="Satuan pengukuran yang digunakan di material dan produk."
+        title="Alasan Penyesuaian"
+        subtitle="Alasan yang dapat dipilih saat menemukan selisih pada pemeriksaan fisik."
         actions={bolehKelola && (
-          <Link href="/data-induk/satuan/baru">
-            <Button variant="primary"><Plus size={14} /> Satuan Baru</Button>
+          <Link href="/data-induk/alasan-penyesuaian/baru">
+            <Button variant="primary"><Plus size={14} /> Alasan Baru</Button>
           </Link>
         )}
       />
@@ -38,12 +39,12 @@ export default async function SatuanPage() {
       {(!data || data.length === 0) ? (
         <Card>
           <EmptyState
-            icon={<Ruler size={20} />}
-            title="Belum ada satuan"
-            description="Tambahkan satuan dasar seperti PCS, KG, M, atau BCM."
+            icon={<FileWarning size={20} />}
+            title="Belum ada alasan"
+            description="Tambahkan alasan penyesuaian seperti rusak, hilang, atau salah hitung."
             action={bolehKelola ? (
-              <Link href="/data-induk/satuan/baru">
-                <Button variant="primary"><Plus size={14} /> Satuan Baru</Button>
+              <Link href="/data-induk/alasan-penyesuaian/baru">
+                <Button variant="primary"><Plus size={14} /> Alasan Baru</Button>
               </Link>
             ) : undefined}
           />
@@ -53,12 +54,18 @@ export default async function SatuanPage() {
           <THead>
             <TH>Kode</TH>
             <TH>Nama</TH>
+            <TH>Status</TH>
           </THead>
           <TBody>
-            {data.map((s: any) => (
-              <TR key={s.id}>
-                <TD className="font-mono text-[12px]">{s.kode}</TD>
-                <TD className="font-medium">{s.nama}</TD>
+            {data.map((r: any) => (
+              <TR key={r.id}>
+                <TD className="font-mono text-[12px]">{r.kode}</TD>
+                <TD className="font-medium">{r.nama}</TD>
+                <TD>
+                  {r.aktif
+                    ? <Badge tone="green">Aktif</Badge>
+                    : <Badge tone="gray">Nonaktif</Badge>}
+                </TD>
               </TR>
             ))}
           </TBody>

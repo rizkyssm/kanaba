@@ -10,27 +10,27 @@ import { Button } from '@/components/ui/Button';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { Tag, Plus } from 'lucide-react';
 
-export default async function KategoriMaterialPage() {
+export default async function KategoriBiayaPage() {
   const ctx = await getKonteks();
   if (!ctx) return null;
 
   const supabase = await createClient();
   const { data } = await supabase
-    .from('kategori_material')
-    .select('id, kode, nama, material:material(id)')
+    .from('kategori_biaya')
+    .select('id, kode, nama, jenis, klasifikasi, deskripsi, aktif')
     .eq('organisasi_id', ctx.organisasiId)
     .order('kode');
 
-  const bolehKelola = punya(ctx, 'data_induk.kelola');
+  const bolehKelola = punya(ctx, 'biaya.kelola');
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Data Induk', href: '/data-induk' }, { label: 'Kategori Material' }]} />
+      <Breadcrumb items={[{ label: 'Data Induk', href: '/data-induk' }, { label: 'Kategori Biaya' }]} />
       <PageHeader
-        title="Kategori Material"
-        subtitle="Pengelompokan material untuk pelaporan dan analitik."
+        title="Kategori Biaya"
+        subtitle="Klasifikasi jenis biaya: langsung/tidak langsung, OPEX/CAPEX."
         actions={bolehKelola && (
-          <Link href="/data-induk/kategori-material/baru">
+          <Link href="/data-induk/kategori-biaya/baru">
             <Button variant="primary"><Plus size={14} /> Kategori Baru</Button>
           </Link>
         )}
@@ -38,33 +38,40 @@ export default async function KategoriMaterialPage() {
 
       {(!data || data.length === 0) ? (
         <Card>
-          <EmptyState
-            icon={<Tag size={20} />}
-            title="Belum ada kategori"
-            description="Tambahkan kategori untuk mengelompokkan material."
+          <EmptyState icon={<Tag size={20} />} title="Belum ada kategori biaya"
+            description="Tambahkan kategori untuk mengklasifikasikan pengeluaran."
             action={bolehKelola ? (
-              <Link href="/data-induk/kategori-material/baru">
+              <Link href="/data-induk/kategori-biaya/baru">
                 <Button variant="primary"><Plus size={14} /> Kategori Baru</Button>
               </Link>
-            ) : undefined}
-          />
+            ) : undefined} />
         </Card>
       ) : (
         <TableWrap className="bg-[color:var(--bg-elev)]">
           <THead>
             <TH>Kode</TH>
             <TH>Nama</TH>
-            <TH align="right">Jumlah Material</TH>
+            <TH>Jenis</TH>
+            <TH>Klasifikasi</TH>
+            <TH>Status</TH>
           </THead>
           <TBody>
-            {data.map((k: any) => (
-              <TR key={k.id}>
-                <TD className="font-mono text-[12px]">{k.kode}</TD>
-                <TD className="font-medium">{k.nama}</TD>
-                <TD align="right">
-                  <Badge tone={k.material?.length > 0 ? 'blue' : 'gray'}>
-                    {k.material?.length ?? 0}
+            {data.map((r: any) => (
+              <TR key={r.id}>
+                <TD className="font-mono text-[12px]">{r.kode}</TD>
+                <TD className="font-medium">{r.nama}</TD>
+                <TD>
+                  <Badge tone={r.jenis === 'langsung' ? 'blue' : 'gray'}>
+                    {r.jenis === 'langsung' ? 'Langsung' : 'Tidak Langsung'}
                   </Badge>
+                </TD>
+                <TD>
+                  <Badge tone={r.klasifikasi === 'capex' ? 'purple' : 'green'}>
+                    {r.klasifikasi.toUpperCase()}
+                  </Badge>
+                </TD>
+                <TD>
+                  {r.aktif ? <Badge tone="green">Aktif</Badge> : <Badge tone="gray">Nonaktif</Badge>}
                 </TD>
               </TR>
             ))}
