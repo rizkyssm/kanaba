@@ -17,9 +17,12 @@ const SkemaKegiatan = z.object({
   site_id: z.string().uuid('Site wajib dipilih'),
   tanggal: z.string().min(10, 'Tanggal wajib'),
   lokasi: z.string().max(300).optional().or(z.literal('')),
+  basis_hasil: z.enum(['per_bcm','per_lubang','per_kegiatan','per_jam']).default('per_bcm'),
   target_bcm: z.coerce.number().min(0).default(0),
+  target_lubang: z.coerce.number().min(0).default(0),
   rencana_kanaba: z.coerce.number().int().min(0).default(0),
   rencana_lox_kg: z.coerce.number().min(0).default(0),
+  rencana_lox_per_lubang_kg: z.coerce.number().min(0).default(0),
   catatan: z.string().max(1000).optional().or(z.literal('')),
 });
 
@@ -43,11 +46,14 @@ export async function buatKegiatanAction(_prev: any, formData: FormData) {
     nama: parsed.data.nama,
     tanggal: parsed.data.tanggal,
     lokasi: parsed.data.lokasi || null,
+    basis_hasil: parsed.data.basis_hasil,
     target_bcm: parsed.data.target_bcm,
+    target_lubang: parsed.data.target_lubang,
     rencana_kanaba: parsed.data.rencana_kanaba,
     rencana_lox_kg: parsed.data.rencana_lox_kg,
     penanggung_jawab_id: ctx.userId,
     status: 'direncanakan',
+    rencana_lox_per_lubang_kg: parsed.data.rencana_lox_per_lubang_kg,
     catatan: parsed.data.catatan || null,
   }).select('id').single();
 

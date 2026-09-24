@@ -13,6 +13,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { TableWrap, THead, TH, TBody, TR, TD } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { tanggal } from '@/lib/utils';
+import { Badge } form '@/components/ui/Badge';
 
 type Params = Promise<{ id: string }>;
 type Search = Promise<{ tab?: string }>;
@@ -68,12 +69,46 @@ export default async function KegiatanDetail({ params, searchParams }: { params:
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KPICard label="Target BCM"   value={tgt.toLocaleString('id-ID')} />
-        <KPICard label="Aktual BCM"   value={akt.toLocaleString('id-ID')} tone="blue" sub={tgt > 0 ? `${pct}% dari target` : undefined} />
-        <KPICard label="KANABA (rencana)" value={`${Number(k.rencana_kanaba).toLocaleString('id-ID')} pcs`} />
-        <KPICard label="LOX (rencana)" value={`${Number(k.rencana_lox_kg).toLocaleString('id-ID')} kg`} />
-      </div>
+<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+  {k.basis_hasil === 'per_bcm' && (
+    <>
+      <KPICard label="Target BCM"   value={tgt.toLocaleString('id-ID')} />
+      <KPICard label="Aktual BCM"   value={akt.toLocaleString('id-ID')} tone="blue" sub={tgt > 0 ? `${pct}%` : undefined} />
+      <KPICard label="Rencana KANABA" value={`${Number(k.rencana_kanaba).toLocaleString('id-ID')} pcs`} />
+      <KPICard label="Rencana LOX"    value={`${Number(k.rencana_lox_kg).toLocaleString('id-ID')} kg`} />
+    </>
+  )}
+  {k.basis_hasil === 'per_lubang' && (
+    <>
+      <KPICard label="Target Lubang"  value={Number(k.target_lubang).toLocaleString('id-ID')} />
+      <KPICard label="Aktual Lubang"  value={Number(k.aktual_lubang).toLocaleString('id-ID')} tone="blue" />
+      <KPICard label="LOX / Lubang"   value={`${Number(k.rencana_lox_per_lubang_kg).toLocaleString('id-ID')} kg`} tone="orange" />
+      <KPICard label="Rencana LOX"    value={`${Number(k.rencana_lox_kg).toLocaleString('id-ID')} kg`} />
+    </>
+  )}
+  {k.basis_hasil === 'per_kegiatan' && (
+    <>
+      <KPICard label="Basis"       value="Per Kegiatan" tone="purple" />
+      <KPICard label="Rencana LOX" value={`${Number(k.rencana_lox_kg).toLocaleString('id-ID')} kg`} />
+      <KPICard label="Rencana KANABA" value={`${Number(k.rencana_kanaba).toLocaleString('id-ID')} pcs`} />
+      <KPICard label="Status"      value={labelStatus(k.status)} />
+    </>
+  )}
+  {k.basis_hasil === 'per_jam' && (
+    <>
+      <KPICard label="Basis"       value="Per Jam" tone="purple" />
+      <KPICard label="Rencana LOX" value={`${Number(k.rencana_lox_kg).toLocaleString('id-ID')} kg`} />
+      <KPICard label="Rencana KANABA" value={`${Number(k.rencana_kanaba).toLocaleString('id-ID')} pcs`} />
+      <KPICard label="Status"      value={labelStatus(k.status)}  />
+      <Badge tone="purple">
+  {k.basis_hasil === 'per_bcm' ? 'Per BCM'
+   : k.basis_hasil === 'per_lubang' ? 'Per Lubang'
+   : k.basis_hasil === 'per_kegiatan' ? 'Per Kegiatan'
+   : 'Per Jam'}
+</Badge>
+    </>
+  )}
+</div>
 
       {tgt > 0 && (
         <div className="rounded-[var(--radius-lg)] border bg-[color:var(--bg-elev)] px-5 py-4">
@@ -127,23 +162,27 @@ async function TabRingkasan({ k }: { k: any }) {
           </THead>
           <TBody>
             <TR>
-              <TD>BCM</TD>
-              <TD align="right">{Number(k.target_bcm).toLocaleString('id-ID')}</TD>
-              <TD align="right">{Number(k.aktual_bcm).toLocaleString('id-ID')}</TD>
-              <TD align="right"><Selisih v={Number(k.aktual_bcm) - Number(k.target_bcm)} /></TD>
-            </TR>
-            <TR>
-              <TD>KANABA</TD>
-              <TD align="right">{k.rencana_kanaba.toLocaleString('id-ID')} pcs</TD>
-              <TD align="right">{k.aktual_kanaba.toLocaleString('id-ID')} pcs</TD>
-              <TD align="right"><Selisih v={k.aktual_kanaba - k.rencana_kanaba} /></TD>
-            </TR>
-            <TR>
-              <TD>Liquid Oxygen</TD>
-              <TD align="right">{Number(k.rencana_lox_kg).toLocaleString('id-ID')} kg</TD>
-              <TD align="right">{Number(k.aktual_lox_kg).toLocaleString('id-ID')} kg</TD>
-              <TD align="right"><Selisih v={Number(k.aktual_lox_kg) - Number(k.rencana_lox_kg)} /></TD>
-            </TR>
+  <TD>Lubang</TD>
+  <TD align="right">{Number(k.target_lubang).toLocaleString('id-ID')}</TD>
+  <TD align="right">{Number(k.aktual_lubang).toLocaleString('id-ID')}</TD>
+  <TD align="right"><Selisih v={Number(k.aktual_lubang) - Number(k.target_lubang)} /></TD>
+</TR>
+<TR>
+  <TD>LOX per Lubang (kg)</TD>
+  <TD align="right">{Number(k.rencana_lox_per_lubang_kg).toLocaleString('id-ID')}</TD>
+  <TD align="right">
+    {Number(k.aktual_lubang) > 0
+      ? (Number(k.aktual_lox_kg) / Number(k.aktual_lubang)).toFixed(3)
+      : '—'}
+  </TD>
+  <TD align="right">
+    <Selisih v={
+      Number(k.aktual_lubang) > 0
+        ? +(Number(k.aktual_lox_kg) / Number(k.aktual_lubang) - Number(k.rencana_lox_per_lubang_kg)).toFixed(3)
+        : 0
+    } />
+  </TD>
+</TR>
           </TBody>
         </TableWrap>
       </Card>
