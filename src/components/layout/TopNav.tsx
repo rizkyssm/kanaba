@@ -2,8 +2,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ProfileMenu from './ProfileMenu';
+import NotificationBell from './NotificationBell';
 import { SearchInput } from '@/components/ui/SearchInput';
-import { Bell } from 'lucide-react';
 import { useState } from 'react';
 
 const MENU = [
@@ -23,7 +23,11 @@ const MENU = [
 
 export default function TopNav({
   ctx,
-}: { ctx: { namaLengkap: string; email: string; organisasiNama: string } }) {
+  jumlahNotif = 0,
+}: {
+  ctx: { namaLengkap: string; email: string; organisasiNama: string };
+  jumlahNotif?: number;
+}) {
   const pathname = usePathname();
   const [q, setQ] = useState('');
 
@@ -56,9 +60,7 @@ export default function TopNav({
 
         <div className="flex items-center gap-2 shrink-0">
           <SearchInput value={q} onChange={setQ} placeholder="Cari…" className="w-56" />
-          <button className="w-9 h-9 rounded-full hover:bg-[color:var(--bg-hover)] flex items-center justify-center focus-ring">
-            <Bell size={16} className="text-[color:var(--text-2)]" />
-          </button>
+          <NotificationBell jumlah={jumlahNotif} />
           <ProfileMenu
             nama={ctx.namaLengkap}
             email={ctx.email}

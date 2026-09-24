@@ -13,18 +13,20 @@ const MENU = [
 ];
 
 const LAINNYA = [
-  { href: '/liquid-oxygen', label: 'Liquid Oxygen' },
-  { href: '/biaya',         label: 'Biaya' },
-  { href: '/aset',          label: 'Aset' },
-  { href: '/hse',           label: 'HSE' },
-  { href: '/analitik',      label: 'Analitik' },
-  { href: '/laporan',       label: 'Laporan' },
-  { href: '/data-induk',    label: 'Data Induk' },
-  { href: '/pengaturan',    label: 'Pengaturan' },
-  { href: '/admin/pengguna',label: 'Pengguna' },
-  { href: '/admin/log',     label: 'Log Aktivitas' },
+  { href: '/liquid-oxygen',        label: 'Liquid Oxygen' },
+  { href: '/produksi',             label: 'Produksi' },
+  { href: '/biaya',                label: 'Biaya' },
+  { href: '/aset',                 label: 'Aset' },
+  { href: '/hse',                  label: 'HSE' },
+  { href: '/analitik',             label: 'Analitik' },
+  { href: '/laporan',              label: 'Laporan' },
+  { href: '/data-induk',           label: 'Data Induk' },
+  { href: '/notifikasi',           label: 'Notifikasi' },
+  { href: '/pengaturan',           label: 'Pengaturan' },
+  { href: '/pengaturan/keamanan',  label: 'Keamanan' },
+  { href: '/admin/pengguna',       label: 'Pengguna' },
+  { href: '/admin/log',            label: 'Log Aktivitas' },
 ];
-
 export default function BottomNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
