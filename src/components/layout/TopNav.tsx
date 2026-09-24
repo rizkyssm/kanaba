@@ -7,17 +7,18 @@ import { Bell } from 'lucide-react';
 import { useState } from 'react';
 
 const MENU = [
-  { href: '/beranda',      label: 'Beranda' },
-  { href: '/kegiatan',     label: 'Kegiatan' },
-  { href: '/alur',         label: 'Alur' },
-  { href: '/persediaan',   label: 'Persediaan' },
-  { href: '/liquid-oxygen',label: 'LOX' },
-  { href: '/hse',          label: 'HSE' },
-  { href: '/aset',         label: 'Aset' },
-  { href: '/biaya',        label: 'Biaya' },
-  { href: '/analitik',     label: 'Analitik' },
-  { href: '/laporan',      label: 'Laporan' },
-  { href: '/data-induk',   label: 'Data Induk' },
+  { href: '/beranda',       label: 'Beranda' },
+  { href: '/kegiatan',      label: 'Kegiatan' },
+  { href: '/alur',          label: 'Alur' },
+  { href: '/persediaan',    label: 'Persediaan' },
+  { href: '/produksi',      label: 'Produksi' },
+  { href: '/liquid-oxygen', label: 'LOX' },
+  { href: '/hse',           label: 'HSE' },
+  { href: '/aset',          label: 'Aset' },
+  { href: '/biaya',         label: 'Biaya' },
+  { href: '/analitik',      label: 'Analitik' },
+  { href: '/laporan',       label: 'Laporan' },
+  { href: '/data-induk',    label: 'Data Induk' },
 ];
 
 export default function TopNav({

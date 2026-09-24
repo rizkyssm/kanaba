@@ -34,18 +34,21 @@ export default async function PersediaanPage() {
       <PageHeader
         title="Persediaan"
         subtitle="Saldo material per lokasi, dihitung dari transaksi."
-        actions={
-          <>
-            <Link href="/persediaan/pengeluaran">
-              <Button variant="secondary"><History size={14} /> Riwayat</Button>
-            </Link>
-            {bolehKelola && (
-              <Link href="/persediaan/pengeluaran/baru">
-                <Button variant="primary"><Plus size={14} /> Pengeluaran Material</Button>
-              </Link>
-            )}
-          </>
-        }
+actions={
+  <>
+    <Link href="/persediaan/pemeriksaan">
+      <Button variant="secondary"><ClipboardCheck size={14} /> Pemeriksaan Fisik</Button>
+    </Link>
+    <Link href="/persediaan/pengeluaran">
+      <Button variant="secondary"><History size={14} /> Riwayat</Button>
+    </Link>
+    {bolehKelola && (
+      <Link href="/persediaan/pengeluaran/baru">
+        <Button variant="primary"><Plus size={14} /> Pengeluaran</Button>
+      </Link>
+    )}
+  </>
+}
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

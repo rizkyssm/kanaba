@@ -4,7 +4,15 @@ import { getKonteks } from '@/lib/auth/permissions';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card, CardBody } from '@/components/ui/Card';
 import {
-  MapPin, Package, Boxes, ClipboardList, Users, Ruler, Tag, Truck,
+  MapPin,
+  Package,
+  Boxes,
+  ClipboardList,
+  Users,
+  Ruler,
+  Tag,
+  Truck,
+  FileWarning,
 } from 'lucide-react';
 
 export default async function DataIndukPage() {
@@ -23,25 +31,46 @@ export default async function DataIndukPage() {
     { count: satuanCount },
     { count: kategoriCount },
     { count: asetCount },
+    { count: alasanCount },
   ] = await Promise.all([
-    supabase.from('site').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
-    supabase.from('material').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
-    supabase.from('produk').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
-    supabase.from('bom').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
-    supabase.from('personel').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
-    supabase.from('satuan').select('*', { count: 'exact', head: true }).eq('organisasi_id', org),
-    supabase.from('kategori_material').select('*', { count: 'exact', head: true }).eq('organisasi_id', org),
-    supabase.from('aset').select('*', { count: 'exact', head: true }).eq('organisasi_id', org),
+    supabase.from('site')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('material')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('produk')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('bom')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('personel')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('satuan')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org),
+    supabase.from('kategori_material')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org),
+    supabase.from('aset')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org),
+    supabase.from('alasan_penyesuaian')
+      .select('*', { count: 'exact', head: true })
+      .eq('organisasi_id', org).eq('aktif', true),
   ]);
 
   const MODUL = [
     { href: '/data-induk/site',              label: 'Site',              count: siteCount ?? 0,     icon: MapPin },
     { href: '/data-induk/material',          label: 'Material',          count: materialCount ?? 0, icon: Package },
+    { href: '/data-induk/kategori-material', label: 'Kategori Material', count: kategoriCount ?? 0, icon: Tag },
+    { href: '/data-induk/satuan',            label: 'Satuan',            count: satuanCount ?? 0,   icon: Ruler },
     { href: '/data-induk/produk',            label: 'Produk',            count: produkCount ?? 0,   icon: Boxes },
     { href: '/data-induk/bom',               label: 'BOM',               count: bomCount ?? 0,      icon: ClipboardList },
     { href: '/data-induk/personel',          label: 'Personel',          count: personelCount ?? 0, icon: Users },
-    { href: '/data-induk/satuan',            label: 'Satuan',            count: satuanCount ?? 0,   icon: Ruler },
-    { href: '/data-induk/kategori-material', label: 'Kategori Material', count: kategoriCount ?? 0, icon: Tag },
+    { href: '/data-induk/alasan-penyesuaian',label: 'Alasan Penyesuaian',count: alasanCount ?? 0,   icon: FileWarning },
     { href: '/aset',                         label: 'Aset',              count: asetCount ?? 0,     icon: Truck },
   ];
 
@@ -55,6 +84,7 @@ export default async function DataIndukPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {MODUL.map((m) => {
           const Icon = m.icon;
+          const kosong = m.count === 0;
           return (
             <Link key={m.href} href={m.href} className="group">
               <Card className="h-full transition group-hover:border-blue group-hover:shadow-[var(--shadow-xs)]">
@@ -71,7 +101,7 @@ export default async function DataIndukPage() {
                     {m.count}
                   </div>
                   <div className="mt-1.5 text-[11px] text-[color:var(--text-3)]">
-                    {m.count === 0 ? 'Belum ada data' : 'Aktif'}
+                    {kosong ? 'Belum ada data' : 'Aktif'}
                   </div>
                 </CardBody>
               </Card>
