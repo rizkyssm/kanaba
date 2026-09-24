@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getKonteks, punya } from '@/lib/auth/permissions';
 import { catatLog } from '@/lib/audit';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 const Skema = z.object({
@@ -30,7 +31,6 @@ export async function buatPersonelAction(_prev: any, formData: FormData) {
   }).select('id').single();
   if (error) return { error: error.message };
 
-  // Kompensasi hanya jika user punya hak gaji.kelola dan tarif diisi
   if (punya(ctx, 'gaji.kelola') && parsed.data.tarif != null && parsed.data.jenis_tarif) {
     await supabase.from('personel_kompensasi').insert({
       personel_id: data.id,
@@ -48,5 +48,5 @@ export async function buatPersonelAction(_prev: any, formData: FormData) {
   });
 
   revalidatePath('/data-induk/personel');
-  return { sukses: true };
+  redirect('/data-induk/personel');
 }

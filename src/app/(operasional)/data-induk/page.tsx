@@ -1,121 +1,84 @@
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { getKonteks, punya } from '@/lib/auth/permissions';
-import FormPersonel from '@/features/personel/FormPersonel';
+import { getKonteks } from '@/lib/auth/permissions';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { Section } from '@/components/ui/Section';
 import { Card, CardBody } from '@/components/ui/Card';
-import { KPICard } from '@/components/ui/KPICard';
-import { TableWrap, THead, TH, TBody, TR, TD } from '@/components/ui/Table';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Badge } from '@/components/ui/Badge';
-import { Breadcrumb } from '@/components/ui/Breadcrumb';
-import { Users } from 'lucide-react';
+import {
+  MapPin, Package, Boxes, ClipboardList, Users, Ruler, Tag, Truck,
+} from 'lucide-react';
 
-const TIPE_LABEL: Record<string, string> = {
-  karyawan: 'Karyawan',
-  tenaga_lepas: 'Tenaga Lepas',
-  vendor: 'Vendor',
-};
-
-const TIPE_TONE: Record<string, 'blue' | 'purple' | 'orange'> = {
-  karyawan: 'blue',
-  tenaga_lepas: 'orange',
-  vendor: 'purple',
-};
-
-export default async function PersonelPage() {
+export default async function DataIndukPage() {
   const ctx = await getKonteks();
   if (!ctx) return null;
 
-  const bolehGaji = punya(ctx, 'gaji.lihat');
-  const bolehKelola = punya(ctx, 'data_induk.kelola');
-
   const supabase = await createClient();
-  const { data: list } = await supabase
-    .from('personel')
-    .select(`id, nama, tipe, telepon, keahlian, aktif,
-      kompensasi:personel_kompensasi(tarif, jenis_tarif)`)
-    .eq('organisasi_id', ctx.organisasiId)
-    .order('nama');
+  const org = ctx.organisasiId;
 
-  const total = list?.length ?? 0;
-  const karyawan = (list ?? []).filter((p: any) => p.tipe === 'karyawan').length;
-  const lepas = (list ?? []).filter((p: any) => p.tipe === 'tenaga_lepas').length;
-  const vendor = (list ?? []).filter((p: any) => p.tipe === 'vendor').length;
+  const [
+    { count: siteCount },
+    { count: materialCount },
+    { count: produkCount },
+    { count: bomCount },
+    { count: personelCount },
+    { count: satuanCount },
+    { count: kategoriCount },
+    { count: asetCount },
+  ] = await Promise.all([
+    supabase.from('site').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('material').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('produk').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('bom').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('personel').select('*', { count: 'exact', head: true }).eq('organisasi_id', org).eq('aktif', true),
+    supabase.from('satuan').select('*', { count: 'exact', head: true }).eq('organisasi_id', org),
+    supabase.from('kategori_material').select('*', { count: 'exact', head: true }).eq('organisasi_id', org),
+    supabase.from('aset').select('*', { count: 'exact', head: true }).eq('organisasi_id', org),
+  ]);
+
+  const MODUL = [
+    { href: '/data-induk/site',              label: 'Site',              count: siteCount ?? 0,     icon: MapPin },
+    { href: '/data-induk/material',          label: 'Material',          count: materialCount ?? 0, icon: Package },
+    { href: '/data-induk/produk',            label: 'Produk',            count: produkCount ?? 0,   icon: Boxes },
+    { href: '/data-induk/bom',               label: 'BOM',               count: bomCount ?? 0,      icon: ClipboardList },
+    { href: '/data-induk/personel',          label: 'Personel',          count: personelCount ?? 0, icon: Users },
+    { href: '/data-induk/satuan',            label: 'Satuan',            count: satuanCount ?? 0,   icon: Ruler },
+    { href: '/data-induk/kategori-material', label: 'Kategori Material', count: kategoriCount ?? 0, icon: Tag },
+    { href: '/aset',                         label: 'Aset',              count: asetCount ?? 0,     icon: Truck },
+  ];
 
   return (
     <div className="space-y-6">
-      <Breadcrumb items={[{ label: 'Data Induk', href: '/data-induk' }, { label: 'Personel' }]} />
       <PageHeader
-        title="Personel"
-        subtitle="Karyawan, tenaga lepas, dan personel vendor."
+        title="Data Induk"
+        subtitle="Data referensi yang digunakan di seluruh platform KANABA."
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KPICard label="Total Personel"  value={total} />
-        <KPICard label="Karyawan"        value={karyawan} tone="blue" />
-        <KPICard label="Tenaga Lepas"    value={lepas} tone="orange" />
-        <KPICard label="Vendor"          value={vendor} tone="purple" />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        {MODUL.map((m) => {
+          const Icon = m.icon;
+          return (
+            <Link key={m.href} href={m.href} className="group">
+              <Card className="h-full transition group-hover:border-blue group-hover:shadow-[var(--shadow-xs)]">
+                <CardBody className="py-4">
+                  <div className="flex items-start justify-between">
+                    <div className="text-[13px] font-medium text-[color:var(--text-2)]">
+                      {m.label}
+                    </div>
+                    <div className="w-7 h-7 rounded-[var(--radius-md)] bg-[color:var(--bg-subtle)] text-[color:var(--text-2)] flex items-center justify-center">
+                      <Icon size={14} />
+                    </div>
+                  </div>
+                  <div className="mt-3 text-[26px] font-semibold leading-none tnum tracking-tight">
+                    {m.count}
+                  </div>
+                  <div className="mt-1.5 text-[11px] text-[color:var(--text-3)]">
+                    {m.count === 0 ? 'Belum ada data' : 'Aktif'}
+                  </div>
+                </CardBody>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
-
-      {bolehKelola && (
-        <Section title="Tambah Personel" subtitle={bolehGaji ? 'Tarif hanya tampil dan tersimpan untuk pengguna dengan hak gaji.' : undefined}>
-          <Card>
-            <CardBody>
-              <FormPersonel bolehGaji={bolehGaji} />
-            </CardBody>
-          </Card>
-        </Section>
-      )}
-
-      <Section title="Daftar Personel" subtitle={`${list?.length ?? 0} orang`}>
-        {(!list || list.length === 0) ? (
-          <Card>
-            <EmptyState
-              icon={<Users size={20} />}
-              title="Belum ada personel"
-              description="Tambahkan karyawan, tenaga lepas, atau vendor untuk ditugaskan ke kegiatan."
-            />
-          </Card>
-        ) : (
-          <TableWrap className="bg-[color:var(--bg-elev)]">
-            <THead>
-              <TH>Nama</TH>
-              <TH>Tipe</TH>
-              <TH>Keahlian</TH>
-              <TH>Telepon</TH>
-              <TH>Status</TH>
-              {bolehGaji && <TH align="right">Tarif</TH>}
-            </THead>
-            <TBody>
-              {(list ?? []).map((r: any) => (
-                <TR key={r.id}>
-                  <TD className="font-medium">{r.nama}</TD>
-                  <TD>
-                    <Badge tone={TIPE_TONE[r.tipe] ?? 'gray'}>
-                      {TIPE_LABEL[r.tipe] ?? r.tipe}
-                    </Badge>
-                  </TD>
-                  <TD className="text-[color:var(--text-2)]">{r.keahlian ?? '—'}</TD>
-                  <TD className="text-[color:var(--text-2)]">{r.telepon ?? '—'}</TD>
-                  <TD>
-                    {r.aktif
-                      ? <Badge tone="green">Aktif</Badge>
-                      : <Badge tone="gray">Nonaktif</Badge>}
-                  </TD>
-                  {bolehGaji && (
-                    <TD align="right">
-                      {r.kompensasi?.tarif != null
-                        ? `Rp ${Number(r.kompensasi.tarif).toLocaleString('id-ID')} / ${r.kompensasi.jenis_tarif ?? ''}`
-                        : '—'}
-                    </TD>
-                  )}
-                </TR>
-              ))}
-            </TBody>
-          </TableWrap>
-        )}
-      </Section>
     </div>
   );
 }

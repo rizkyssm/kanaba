@@ -43,16 +43,14 @@ export default function FormLox({
       </Field>
 
       <Field label="Jumlah (kg)" required>
-        <Input type="number" step="0.01" min={0.01} name="jumlah_kg" required />
+        <Input type="number" step="0.01" min={0.01} name="jumlah_kg" required autoFocus />
       </Field>
 
       <Field label="Kegiatan (opsional)">
         <Select name="kegiatan_id" defaultValue="">
           <option value="">— Tidak terhubung kegiatan —</option>
           {kegiatans.map((k) => (
-            <option key={k.id} value={k.id}>
-              {k.nomor} · {k.nama}
-            </option>
+            <option key={k.id} value={k.id}>{k.nomor} · {k.nama}</option>
           ))}
         </Select>
       </Field>
@@ -61,9 +59,7 @@ export default function FormLox({
         <Select name="site_id" defaultValue="">
           <option value="">— Tidak ditentukan —</option>
           {sites.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.kode} · {s.nama}
-            </option>
+            <option key={s.id} value={s.id}>{s.kode} · {s.nama}</option>
           ))}
         </Select>
       </Field>
@@ -74,10 +70,10 @@ export default function FormLox({
         </Field>
       </div>
 
-      <div className="md:col-span-2 flex items-center gap-3">
+      {state?.error && <p className="text-sm text-red md:col-span-2">{state.error}</p>}
+
+      <div className="md:col-span-2 flex items-center gap-2">
         <Tombol />
-        {state?.error && <span className="text-sm text-red">{state.error}</span>}
-        {state?.sukses && <span className="text-sm text-green">Tersimpan.</span>}
       </div>
     </form>
   );

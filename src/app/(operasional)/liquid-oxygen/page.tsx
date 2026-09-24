@@ -1,6 +1,6 @@
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getKonteks, punya } from '@/lib/auth/permissions';
-import FormLox from '@/features/lox/FormLox';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Section } from '@/components/ui/Section';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -8,7 +8,8 @@ import { KPICard } from '@/components/ui/KPICard';
 import { TableWrap, THead, TH, TBody, TR, TD } from '@/components/ui/Table';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
-import { Droplet } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Droplet, Plus } from 'lucide-react';
 
 const JENIS_TONE: Record<string, 'green' | 'red' | 'orange' | 'blue' | 'gray'> = {
   penerimaan: 'green',
@@ -33,7 +34,7 @@ export default async function LoxPage() {
   if (!ctx) return null;
 
   const supabase = await createClient();
-  const [{ data: saldo }, { data: trx }, { data: kegiatans }, { data: sites }] = await Promise.all([
+  const [{ data: saldo }, { data: trx }] = await Promise.all([
     supabase.from('v_saldo_lox')
       .select('site_id, saldo_kg, site:site_id(kode,nama)')
       .eq('organisasi_id', ctx.organisasiId),
@@ -42,13 +43,6 @@ export default async function LoxPage() {
       .eq('organisasi_id', ctx.organisasiId)
       .order('created_at', { ascending: false })
       .limit(80),
-    supabase.from('kegiatan')
-      .select('id, nomor, nama')
-      .eq('organisasi_id', ctx.organisasiId)
-      .in('status', ['direncanakan', 'disetujui', 'persiapan', 'dikirim_ke_site', 'di_site', 'sedang_berjalan'])
-      .limit(100),
-    supabase.from('site').select('id, kode, nama')
-      .eq('organisasi_id', ctx.organisasiId).eq('aktif', true),
   ]);
 
   const total = (saldo ?? []).reduce((s: number, r: any) => s + Number(r.saldo_kg || 0), 0);
@@ -61,6 +55,13 @@ export default async function LoxPage() {
       <PageHeader
         title="Liquid Oxygen"
         subtitle="Pencatatan LOX masuk, keluar, dan pemakaian per site."
+        actions={
+          bolehKelola && (
+            <Link href="/liquid-oxygen/baru">
+              <Button variant="primary"><Plus size={14} /> Catat Transaksi</Button>
+            </Link>
+          )
+        }
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -92,16 +93,6 @@ export default async function LoxPage() {
         )}
       </Section>
 
-      {bolehKelola && (
-        <Section title="Catat Transaksi" subtitle="Pilih jenis, jumlah, dan kegiatan terkait bila ada.">
-          <Card>
-            <CardBody>
-              <FormLox kegiatans={(kegiatans ?? []) as any} sites={(sites ?? []) as any} />
-            </CardBody>
-          </Card>
-        </Section>
-      )}
-
       <Section title="80 Transaksi Terakhir" subtitle={`${trx?.length ?? 0} baris`}>
         {(!trx || trx.length === 0) ? (
           <Card>
@@ -109,6 +100,11 @@ export default async function LoxPage() {
               icon={<Droplet size={20} />}
               title="Belum ada transaksi LOX"
               description="Catat penerimaan atau pengeluaran LOX untuk memulai."
+              action={bolehKelola ? (
+                <Link href="/liquid-oxygen/baru">
+                  <Button variant="primary"><Plus size={14} /> Catat Transaksi</Button>
+                </Link>
+              ) : undefined}
             />
           </Card>
         ) : (
@@ -127,11 +123,7 @@ export default async function LoxPage() {
                   <TD className="text-[12px] text-[color:var(--text-2)]">
                     {new Date(r.created_at).toLocaleString('id-ID')}
                   </TD>
-                  <TD>
-                    <Badge tone={JENIS_TONE[r.jenis] ?? 'gray'}>
-                      {JENIS_LABEL[r.jenis] ?? r.jenis}
-                    </Badge>
-                  </TD>
+                  <TD><Badge tone={JENIS_TONE[r.jenis] ?? 'gray'}>{JENIS_LABEL[r.jenis] ?? r.jenis}</Badge></TD>
                   <TD className="text-[color:var(--text-2)] capitalize">{r.arah}</TD>
                   <TD align="right" className="font-medium">{Number(r.jumlah_kg).toLocaleString('id-ID')}</TD>
                   <TD className="font-mono text-[12px]">{r.kegiatan?.nomor ?? '—'}</TD>

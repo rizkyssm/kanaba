@@ -9,7 +9,7 @@ function Tombol() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" variant="primary" disabled={pending}>
-      {pending ? 'Menyimpan…' : 'Tambah Personel'}
+      {pending ? 'Menyimpan…' : 'Simpan Personel'}
     </Button>
   );
 }
@@ -34,15 +34,13 @@ export default function FormPersonel({ bolehGaji }: { bolehGaji: boolean }) {
     <form action={action} className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
       <Field label="Tipe" required>
         <Select name="tipe" required defaultValue="karyawan">
-          {TIPE.map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
-          ))}
+          {TIPE.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </Select>
       </Field>
 
       <div className="md:col-span-2">
         <Field label="Nama" required>
-          <Input name="nama" required />
+          <Input name="nama" required autoFocus />
         </Field>
       </div>
 
@@ -58,24 +56,22 @@ export default function FormPersonel({ bolehGaji }: { bolehGaji: boolean }) {
 
       {bolehGaji && (
         <>
-          <Field label="Tarif" hint="Nilai hanya tampil untuk pengguna dengan hak gaji.">
+          <Field label="Tarif" hint="Hanya tersimpan untuk pengguna dengan hak gaji.">
             <Input type="number" step="0.01" name="tarif" />
           </Field>
           <Field label="Jenis Tarif">
             <Select name="jenis_tarif" defaultValue="">
               <option value="">— Pilih —</option>
-              {JENIS_TARIF.map(([v, l]) => (
-                <option key={v} value={v}>{l}</option>
-              ))}
+              {JENIS_TARIF.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
             </Select>
           </Field>
         </>
       )}
 
-      <div className="md:col-span-3 flex items-center gap-3">
+      {state?.error && <p className="text-sm text-red md:col-span-3">{state.error}</p>}
+
+      <div className="md:col-span-3 flex items-center gap-2">
         <Tombol />
-        {state?.error && <span className="text-sm text-red">{state.error}</span>}
-        {state?.sukses && <span className="text-sm text-green">Tersimpan.</span>}
       </div>
     </form>
   );

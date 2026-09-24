@@ -9,7 +9,7 @@ function Tombol() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" variant="primary" disabled={pending}>
-      {pending ? 'Menyimpan…' : 'Tambah Aset'}
+      {pending ? 'Menyimpan…' : 'Simpan Aset'}
     </Button>
   );
 }
@@ -30,7 +30,7 @@ export default function FormAset({ sites }: { sites: { id: string; kode: string;
   return (
     <form action={action} className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
       <Field label="Kode" required>
-        <Input name="kode" required placeholder="RT-001" />
+        <Input name="kode" required placeholder="RT-001" autoFocus />
       </Field>
 
       <div className="md:col-span-2">
@@ -49,9 +49,7 @@ export default function FormAset({ sites }: { sites: { id: string; kode: string;
 
       <Field label="Status" required>
         <Select name="status" required defaultValue="aktif">
-          {STATUS.map(([v, l]) => (
-            <option key={v} value={v}>{l}</option>
-          ))}
+          {STATUS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </Select>
       </Field>
 
@@ -60,18 +58,16 @@ export default function FormAset({ sites }: { sites: { id: string; kode: string;
           <Select name="site_id" defaultValue="">
             <option value="">— Tidak ditentukan —</option>
             {sites.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.kode} · {s.nama}
-              </option>
+              <option key={s.id} value={s.id}>{s.kode} · {s.nama}</option>
             ))}
           </Select>
         </Field>
       </div>
 
-      <div className="md:col-span-3 flex items-center gap-3">
+      {state?.error && <p className="text-sm text-red md:col-span-3">{state.error}</p>}
+
+      <div className="md:col-span-3 flex items-center gap-2">
         <Tombol />
-        {state?.error && <span className="text-sm text-red">{state.error}</span>}
-        {state?.sukses && <span className="text-sm text-green">Tersimpan.</span>}
       </div>
     </form>
   );

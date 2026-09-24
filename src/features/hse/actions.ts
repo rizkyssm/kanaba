@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getKonteks, punya } from '@/lib/auth/permissions';
 import { catatLog } from '@/lib/audit';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 const Skema = z.object({
@@ -47,5 +48,5 @@ export async function buatHseAction(_prev: any, formData: FormData) {
 
   revalidatePath('/hse');
   if (parsed.data.kegiatan_id) revalidatePath(`/kegiatan/${parsed.data.kegiatan_id}`);
-  return { sukses: true };
+  redirect('/hse');
 }

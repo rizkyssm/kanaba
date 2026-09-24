@@ -54,7 +54,7 @@ export default function FormHse({
       </Field>
 
       <Field label="Judul" required>
-        <Input name="judul" required />
+        <Input name="judul" required autoFocus />
       </Field>
 
       <Field label="Tingkat" required>
@@ -99,10 +99,10 @@ export default function FormHse({
         </Field>
       </div>
 
-      <div className="md:col-span-2 flex items-center gap-3">
+      {state?.error && <p className="text-sm text-red md:col-span-2">{state.error}</p>}
+
+      <div className="md:col-span-2 flex items-center gap-2">
         <Tombol />
-        {state?.error && <span className="text-sm text-red">{state.error}</span>}
-        {state?.sukses && <span className="text-sm text-green">Tersimpan.</span>}
       </div>
     </form>
   );

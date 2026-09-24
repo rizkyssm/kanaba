@@ -2,6 +2,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getKonteks, punya } from '@/lib/auth/permissions';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 const SkemaSite = z.object({
@@ -32,7 +33,7 @@ export async function buatSiteAction(_prev: any, formData: FormData) {
   if (error) return { error: error.message };
 
   revalidatePath('/data-induk/site');
-  return { sukses: true };
+  redirect('/data-induk/site');
 }
 
 export async function nonaktifkanSiteAction(id: string) {
